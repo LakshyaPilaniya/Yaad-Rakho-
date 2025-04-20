@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yaad Rakho - Reminder App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #361040;
+      color: white;
+      text-align: center;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 15px 20px;
+      background-color: #361040;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 999;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-buttons button {
+      background: transparent;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .nav-buttons button:hover {
+      background: white;
+      color: #361040;
+    }
+
+    .nav-buttons .active {
+      background: white;
+      color: #361040;
+    }
+
+    .container {
+      padding: 100px 20px 20px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    input,
+    button.action {
+      padding: 12px;
+      font-size: 16px;
+      margin: 10px 0;
+      border-radius: 20px;
+      border: none;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    input {
+      background: #4e1d64;
+      color: white;
+      border: 2px solid #8A2BE2;
+    }
+
+    button.action {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+
+    button.action:hover {
+      background: white;
+      color: #361040;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #4e1d64;
+      margin: 10px auto;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 400px;
+    }
+
+    @media (max-width: 768px) {
+      .logo {
+        display: none;
+      }
+
+      .nav-buttons {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body onload="loadHistory();">
+
+  <div class="header">
+    <div class="logo">Yaad Rakho</div>
+    <div class="nav-buttons">
+      <button onclick="switchTab('home')" id="homeBtn">Home</button>
+      <button onclick="switchTab('reminder')" id="reminderBtn">Reminder</button>
+      <button onclick="switchTab('history')" id="historyBtn">History</button>
+      <button onclick="switchTab('about')" id="aboutBtn">About Me</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="home" class="section active">
+      <h2>📌 Yaad Rakho – Ab kuch bhi bhoolna nahi!</h2>
+      <p>📅 Set karo reminders – personal, work, ya finance related.<br>⏰ Sab kuch ek jagah, bina kisi tension ke.<br><br>💡 <em>\"Chhoti yaadein, bade kaam karti hain – Yaad Rakho, zindagi aasaan bano.\"</em></p>
+    </div>
+
+    <div id="reminder" class="section">
+      <h2>📝 Set Your Reminder</h2>
+      <input type="text" id="reminderText" placeholder="Reminder text" />
+      <input type="datetime-local" id="reminderTime" />
+      <button class="action" onclick="setReminder()">🚀 Set Reminder</button>
+    </div>
+
+    <div id="history" class="section">
+      <h2>📚 Reminder History</h2>
+      <ul id="historyList"></ul>
+      <button class="action" onclick="clearHistory()">🧹 Clear History</button>
+    </div>
+
+    <div id="about" class="section">
+      <h2>👨‍💻 About the Developer</h2>
+      <p>
+        Hello! 👋<br><br>
+        My name is <strong>Lakshya Pilaniya</strong>, and I recently appeared for my <strong>Class 8th exams</strong>.<br>
+        I am currently studying at <strong>GSSS Udwala</strong>.<br><br>
+        I created this website/app called <strong>Yaad Rakho</strong> for all those people who often forget important things
+        like paying bills, remembering a friend's birthday, or other daily tasks.<br><br>
+        💡 My goal is to make life a little easier, one reminder at a time!
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const sections = document.querySelectorAll('.section');
+    const buttons = document.querySelectorAll('.nav-buttons button');
+
+    function switchTab(tabId) {
+      sections.forEach(s => s.classList.remove('active'));
+      buttons.forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      document.getElementById(tabId + 'Btn').classList.add('active');
+    }
+
+    function setReminder() {
+      const text = document.getElementById('reminderText').value;
+      const time = document.getElementById('reminderTime').value;
+      if (!text || !time) return alert('Please enter both reminder and time.');
+
+      const reminder = { text, time, id: Date.now() };
+      const reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
+      reminders.push(reminder);
+      localStorage.setItem('reminders', JSON.stringify(reminders));
+      loadHistory();
+
+      alert('Reminder set!');
+      document.getElementById('reminderText').value = '';
+      document.getElementById('reminderTime').value = '';
+    }
+
+    function loadHistory() {
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+      const reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
+      reminders.forEach(r => {
+        const li = document.createElement('li');
+        li.textContent = `${r.text} at ${new Date(r.time).toLocaleString()}`;
+        list.appendChild(li);
+      });
+    }
+
+    function clearHistory() {
+      localStorage.removeItem('reminders');
+      loadHistory();
+    }
+  </script>
+</body>
+
+</html>
